@@ -1,0 +1,6 @@
+=== REPORTE CORPORATIVO DE INVENTARIO ===
+
+[DISPONIBLE] Oxígeno
+[DISPONIBLE] Medicamentos
+[DISPONIBLE] Instrumentos
+[DISPONIBLE] Insumos
