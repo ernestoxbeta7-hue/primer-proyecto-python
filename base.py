@@ -1,43 +1,35 @@
 import requests
+from flask import Flask, jsonify
 
-def procesar_finanzas_empresa():
-    print("=== INICIANDO SISTEMA FINANCIERO AUTOMÁTICO ===")
-    
-    # 1. Traemos el precio real del dólar en Colombia usando una API pública
-    print(">> Conectando con el servidor financiero en internet...")
+# Inicializamos la aplicación Flask
+app = Flask(__name__)
+app.config['JSON_AS_ASCII'] = False
+
+
+# Definimos la ruta de navegación (La URL de nuestra API)
+@app.route("/api/trm", methods=["GET"])
+def obtener_trm_corporativa():
+    # 1. Consumimos los datos de internet como la sesión anterior
     url = "https://open.er-api.com/v6/latest/USD"
     respuesta = requests.get(url).json()
-    
-    # Extraemos el valor del dólar en pesos colombianos (COP)
     precio_dolar = respuesta["rates"]["COP"]
-    print(f">> ÉXITO: Valor del Dólar detectado hoy: ${precio_dolar} COP\n")
     
-    # 2. Base de datos simulada de clientes que deben facturas en USD
-    facturas_pendientes = [
-        {"cliente": "Carlos Mendoza", "monto_usd": 150},
-        {"cliente": "Almacenes Alfa", "monto_usd": 500},
-        {"cliente": "Dra. Betancur", "monto_usd": 250}
-    ]
+    # 2. Creamos la estructura de datos empresarial
+    datos_salida = {
+        "origen": "Base Orion - Medellín",
+        "estado_servidor": "Operacional",
+        "trm_usd_cop": precio_dolar,
+        "clientes_pendientes": [
+            {"cliente": "Carlos Mendoza", "deuda_usd": 150, "deuda_cop": 150 * precio_dolar},
+            {"cliente": "Almacenes Alfa", "deuda_usd": 500, "deuda_cop": 500 * precio_dolar},
+            {"cliente": "Dra. Betancur", "deuda_usd": 250, "deuda_cop": 250 * precio_dolar}
+        ]
+    }
     
-    # 3. Procesamos los datos y generamos el archivo de reporte para contabilidad
-    nombre_reporte = "reporte_financiero.txt"
-    with open(nombre_reporte, "w") as archivo:
-        archivo.write("=========================================\n")
-        archivo.write("   REPORTE DE CARTERA TRADUCIDO A COP\n")
-        archivo.write(f"   Tasa de Cambio Utilizada: $ {precio_dolar} COP\n")
-        archivo.write("=========================================\n\n")
-        
-        for factura in facturas_pendientes:
-            # Calculamos la conversión matemática exacta
-            valor_en_cop = factura["monto_usd"] * precio_dolar
-            
-            # Escribimos los datos limpios en el archivo
-            archivo.write(f"• Cliente: {factura['cliente']}\n")
-            archivo.write(f"  Deuda: {factura['monto_usd']} USD  -->  $ {valor_en_cop:,.2f} COP\n")
-            archivo.write("-----------------------------------------\n")
-            
-    print(f">> ¡Reporte '{nombre_reporte}' generado con éxito en el disco!")
+    # 3. jsonify convierte nuestro diccionario de Python en formato JSON estándar internacional
+    return jsonify(datos_salida)
 
-# Ejecutamos el automatizador
-procesar_finanzas_empresa()
+# Encendemos el servidor en el puerto 5000
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5000, debug=True)
 
